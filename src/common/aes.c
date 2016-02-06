@@ -231,6 +231,12 @@ evaluate_ctr_for_aes(void)
   for (i=0; i<16; ++i)
     AES_ctr128_encrypt(&zero[i], &output[i], 1, &key, ivec, ivec_tmp, &pos);
 
+  if (fast_memneq(output, encrypt_zero, 16)) {
+    /* Counter mode is buggy */
+    log_err(LD_CRYPTO, "This OpenSSL has a buggy version of counter mode; "
+                  "quitting tor.");
+    exit(1);
+  }
   return 0;
 }
 
@@ -239,29 +245,6 @@ evaluate_ctr_for_aes(void)
 #else
 #define COUNTER(c, n) ((c)->counter ## n)
 #endif
-
-/**
- * Helper function: set <b>cipher</b>'s internal buffer to the encrypted
- * value of the current counter.
- */
-static inline void
-aes_fill_buf_(aes_cnt_cipher_t *cipher)
-{
-  /* We don't currently use OpenSSL's counter mode implementation because:
-   *  1) some versions have known bugs
-   *  2) its attitude towards IVs is not our own
-   *  3) changing the counter position was not trivial, last time I looked.
-   * None of these issues are insurmountable in principle.
-   */
-
-  if (cipher->using_evp) {
-    int outl=16, inl=16;
-    EVP_EncryptUpdate(&cipher->key.evp, cipher->buf, &outl,
-                      cipher->ctr_buf.buf, inl);
-  } else {
-    AES_encrypt(cipher->ctr_buf.buf, cipher->buf, &cipher->key.aes);
-  }
-}
 
 static void aes_set_key(aes_cnt_cipher_t *cipher, const char *key,
                         int key_bits);
