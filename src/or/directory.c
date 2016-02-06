@@ -1159,6 +1159,23 @@ directory_get_consensus_url(const char *resource)
   return url;
 }
 
+/**
+ * Copies the ipv6 from source to destination, subject to buffer size limit
+ * size. If decorate is true, makes sure the copied address is decorated.
+ */
+static void
+copy_ipv6_address(char* destination, const char* source, size_t len,
+                  int decorate) {
+  tor_assert(destination);
+  tor_assert(source);
+
+  if (decorate && source[0] != '[') {
+    tor_snprintf(destination, len, "[%s]", source);
+  } else {
+    strlcpy(destination, source, len);
+  }
+}
+
 /** Queue an appropriate HTTP command on conn-\>outbuf.  The other args
  * are as in directory_initiate_command().
  */
@@ -1174,6 +1191,8 @@ directory_send_command(dir_connection_t *conn,
   char *url;
   char request[8192];
   const char *httpcommand = NULL;
+  // Will be decorated with brackets around it if it is ipv6
+  char *decorated_address = tor_malloc(sizeof(hoststring));
 
   tor_assert(conn);
   tor_assert(conn->base_.type == CONN_TYPE_DIR);
@@ -1182,13 +1201,24 @@ directory_send_command(dir_connection_t *conn,
   if (resource)
     conn->requested_resource = tor_strdup(resource);
 
+  /* decorate the ip address if it is ipv6 */
+  if(conn->base_.socket_family == AF_INET6) {
+    copy_ipv6_address(decorated_address, conn->base_.address,
+                      sizeof(hoststring), 1);
+  } else {
+    strlcpy(decorated_address, conn->base_.address, sizeof(hoststring));
+  }
+
   /* come up with a string for which Host: we want */
   if (conn->base_.port == 80) {
-    strlcpy(hoststring, conn->base_.address, sizeof(hoststring));
+    strlcpy(hoststring, decorated_address, sizeof(hoststring));
   } else {
-    tor_snprintf(hoststring, sizeof(hoststring),"%s:%d",
-                 conn->base_.address, conn->base_.port);
+    tor_snprintf(hoststring, sizeof(hoststring), "%s:%d",
+                 decorated_address, conn->base_.port);
   }
+
+  /* no longer needed, can be freed */
+  tor_free(decorated_address);
 
   /* Format if-modified-since */
   if (if_modified_since) {
@@ -4157,4 +4187,3 @@ dir_split_resource_into_fingerprints(const char *resource,
   smartlist_free(fp_tmp);
   return 0;
 }
-
