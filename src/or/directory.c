@@ -1187,12 +1187,13 @@ directory_send_command(dir_connection_t *conn,
 {
   char proxystring[256];
   char hoststring[128];
+  /* NEEDS to be the same size hoststring.
+   Will be decorated with brackets around it if it is ipv6. */
+  char decorated_address[128];
   smartlist_t *headers = smartlist_new();
   char *url;
   char request[8192];
   const char *httpcommand = NULL;
-  // Will be decorated with brackets around it if it is ipv6
-  char *decorated_address = tor_malloc(sizeof(hoststring));
 
   tor_assert(conn);
   tor_assert(conn->base_.type == CONN_TYPE_DIR);
@@ -1202,11 +1203,11 @@ directory_send_command(dir_connection_t *conn,
     conn->requested_resource = tor_strdup(resource);
 
   /* decorate the ip address if it is ipv6 */
-  if(conn->base_.socket_family == AF_INET6) {
+  if(strchr(conn->base_.address, ':')) {
     copy_ipv6_address(decorated_address, conn->base_.address,
-                      sizeof(hoststring), 1);
+                      sizeof(decorated_address), 1);
   } else {
-    strlcpy(decorated_address, conn->base_.address, sizeof(hoststring));
+    strlcpy(decorated_address, conn->base_.address, sizeof(decorated_address));
   }
 
   /* come up with a string for which Host: we want */
@@ -1216,9 +1217,6 @@ directory_send_command(dir_connection_t *conn,
     tor_snprintf(hoststring, sizeof(hoststring), "%s:%d",
                  decorated_address, conn->base_.port);
   }
-
-  /* no longer needed, can be freed */
-  tor_free(decorated_address);
 
   /* Format if-modified-since */
   if (if_modified_since) {
