@@ -22,6 +22,7 @@
 #include "nodelist.h"
 #include "rendclient.h"
 #include "rendcommon.h"
+#include "rendparse.h"
 #include "rendservice.h"
 #include "router.h"
 #include "relay.h"
@@ -3886,4 +3887,3 @@ rend_service_set_connection_addr_port(edge_connection_t *conn,
   else
     return -2;
 }
-

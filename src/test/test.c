@@ -49,6 +49,7 @@ double fabs(double x);
 #include "geoip.h"
 #include "rendcommon.h"
 #include "rendcache.h"
+#include "rendparse.h"
 #include "test.h"
 #include "torgzip.h"
 #include "main.h"
@@ -1234,4 +1235,3 @@ struct testgroup_t testgroups[] = {
   { "dns/", dns_tests },
   END_OF_GROUPS
 };
-

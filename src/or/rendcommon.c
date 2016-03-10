@@ -19,6 +19,7 @@
 #include "rephist.h"
 #include "routerlist.h"
 #include "routerparse.h"
+#include "rendparse.h"
 
 /** Return 0 if one and two are the same service ids, else -1 or 1 */
 int
@@ -934,4 +935,3 @@ rend_data_client_create(const char *onion_address, const char *desc_id,
   rend_data_free(rend_data);
   return NULL;
 }
-

@@ -63,6 +63,7 @@ LIBTOR_A_SOURCES = \
 	src/or/onion_fast.c				\
 	src/or/onion_tap.c				\
 	src/or/transports.c				\
+	src/or/parsecommon.c		\
 	src/or/periodic.c				\
 	src/or/policies.c				\
 	src/or/reasons.c				\
@@ -71,6 +72,7 @@ LIBTOR_A_SOURCES = \
 	src/or/rendclient.c				\
 	src/or/rendcommon.c				\
 	src/or/rendmid.c				\
+	src/or/rendparse.c      \
 	src/or/rendservice.c				\
 	src/or/rephist.c				\
 	src/or/replaycache.c				\
@@ -173,6 +175,7 @@ ORHEADERS = \
 	src/or/onion_tap.h				\
 	src/or/or.h					\
 	src/or/transports.h				\
+	src/or/parsecommon.h		\
 	src/or/periodic.h				\
 	src/or/policies.h				\
 	src/or/reasons.h				\
@@ -181,6 +184,7 @@ ORHEADERS = \
 	src/or/rendclient.h				\
 	src/or/rendcommon.h				\
 	src/or/rendmid.h				\
+	src/or/rendparse.h      \
 	src/or/rendservice.h				\
 	src/or/rephist.h				\
 	src/or/replaycache.h				\
